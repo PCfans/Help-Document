@@ -37,3 +37,120 @@ extension SomeType: SomeProtocol, AnotherProctocol {
 
 /************************** 计算型属性 *************/
 
+extension Double{
+    var km: Double { return self * 1_000.0}
+    var m: Double {
+        return self;
+    }
+    var cm: Double{
+        return self/100.0
+    }
+    var mm: Double{
+        return self/1_000.0
+    }
+    var ft: Double{
+        return self/3.2884
+    }
+}
+let oneinch = 25.4.mm
+let threeFeet = 3.ft
+let aMarathon = 42.km + 195.m
+print("A marathon is \(aMarathon) meters long")
+
+/************************** 构造器 *************/
+//可以让你扩展其它类型，将你自己的定制类型作为其构造器参数，或者提供该类型的原始实现中未提供的额外初始化选项。
+//扩展能为类添加新的便利构造器，但是它们不能为类添加新的指定构造器或析构器。指定构造器和析构器必须总是由原始的类实现来提供。
+
+struct Size {
+    var width = 0.0, height = 0.0
+}
+struct Point {
+    var x = 0.0, y = 0.0
+}
+struct Rect {
+    var origin = Point()
+    var size = Size()
+}
+let defualtRect = Rect()
+let menberwiseRect = Rect(origin: Point(x: 1.0, y: 2.0), size: Size(width: 5.0, height: 4.0))
+extension Rect{ // 可以使用原有的init
+    init(center: Point,size :Size){
+        let originX = center.x - (size.width / 2)
+        let originY = center.y - (size.height / 2)
+        self.init(origin: Point(x: originX, y: originY), size: size)
+    }
+}
+let centerRect = Rect(center: Point(x: 4.0, y: 4.0), size: Size(width: 3.0, height: 3.0))
+
+/************************** 方法*************/
+//已有类型添加新的实例方法和类型方法
+extension Int{
+    func repetitions(task: () -> Void){
+        for _ in 0..<self {
+            task()
+        }
+    }
+}
+3.repetitions({
+    print("hello")
+})
+3.repetitions{
+    print("goodbye")
+}//简洁方式
+
+/************************** 可变实例方法 *************/
+//通过扩展添加的实例方法也可以修改该实例本身。结构体和枚举类型中修改 self 或其属性的方法必须将该实例方法标注为 mutating
+extension Int{//Int 类型在swift 中是 结构体 类型
+    mutating func square(){
+        self = self * self
+    }
+}
+var someint = 3
+someint.square()
+
+/************************** 下标（Subscripts） *************/
+
+extension Int{
+    subscript(var digitIndex: Int) -> Int{
+        var decimalBase = 1
+        while digitIndex > 0 {
+            decimalBase *= 10
+            --digitIndex
+        }
+        return (self / decimalBase) % 10
+    }
+}
+746381295[0]
+
+/************************** 嵌套类型） *************/
+//为已有的类、结构体和枚举添加新的嵌套类型：
+extension Int{
+    enum Kind {
+        case Negative, Zero, Positive
+    }
+    var kind: Kind{
+        switch self{
+        case 0:
+            return .Zero
+         case let x where x > 0:
+            return .Positive
+        default:
+            return .Negative
+        }
+    }
+}
+
+func printIntergerKinds(nnumber : [Int]) {
+    for munber in nnumber{
+        switch munber.kind{
+        case .Negative:
+            print("- ", terminator: "")
+        case .Zero:
+            print("0 ", terminator: "")
+        case .Positive:
+            print("+ ", terminator: "")
+        }
+    }
+    print("")
+}
+printIntergerKinds([3, 19, -27, 0, -6, 0, 7])
